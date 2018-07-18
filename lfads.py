@@ -327,6 +327,11 @@ class LFADS(object):
           datasets[hps.dataset_names[0]]['train_data'].dtype, float), \
           "Data dtype must be float for gaussian output dsitribution"
       data_dtype = tf.float32
+    elif hps.output_dist == 'calcium':
+      assert np.issubdtype(
+          datasets[hps.dataset_names[0]]['train_data'].dtype, float), \
+          "Data dtype must be float for gaussian output dsitribution"
+      data_dtype = tf.float32
     else:
       assert False, "NIY"
     self.dataset_ph = dataset_ph = tf.placeholder(data_dtype,
@@ -476,6 +481,17 @@ class LFADS(object):
               axis=1, values=[out_fac_W_mean, out_fac_W_logvar])
           out_fac_b = tf.concat(
               axis=1, values=[out_fac_b_mean, out_fac_b_logvar])
+
+        elif hps.output_dist == 'calcium':
+          out_fac_lin = init_linear(factors_dim, data_dim, do_bias=True,
+                                    mat_init_value=out_mat_fxc,
+                                    bias_init_value=out_bias_1xc,
+                                    identity_if_possible=out_identity_if_poss,
+                                    normalized=False,
+                                    name="fac_2_logrates_"+name,
+                                    collections=['IO_transformations'])
+          out_fac_W, out_fac_b = out_fac_lin
+
         else:
           assert False, "NIY"
 
@@ -708,6 +724,12 @@ class LFADS(object):
         means_t_bxd, logvars_t_bxd = tf.split(axis=1, num_or_size_splits=2,
                                               value=mean_n_logvars)
         rates[-1] = means_t_bxd
+
+      elif hps.output_dist == 'calcium':
+        log_rates_t0 = tf.matmul(factors[-1], this_out_fac_W) + this_out_fac_b
+        log_rates_t0.set_shape([None, None])
+        rates[-1] = tf.exp(log_rates_t0) # rate
+        rates[-1].set_shape([None, hps.dataset_dims[hps.dataset_names[0]]])
       else:
         assert False, "NIY"
 
@@ -809,6 +831,14 @@ class LFADS(object):
           loglikelihood_t = \
               diag_gaussian_log_likelihood(data_t_bxd,
                                            means_t_bxd, logvars_t_bxd)
+
+        elif hps.output_dist == 'calcium':
+          log_rates_t = tf.matmul(factors[t], this_out_fac_W) + this_out_fac_b
+          log_rates_t.set_shape([None, None])
+          rates[t] = dist_params[t] = tf.exp(log_rates_t) # rates feed back
+          rates[t].set_shape([None, hps.dataset_dims[hps.dataset_names[0]]])
+          loglikelihood_t = tf.losses.mean_squared_error(data_t_bxd,log_rates_t)
+
         else:
           assert False, "NIY"
 
@@ -928,7 +958,7 @@ class LFADS(object):
       tvars2 = \
         tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES,
                           scope='LFADS/z/ic_enc_*')
-      
+
       self.train_vars = tvars = tvars1 + tvars2
     # train all variables
     else:
@@ -1749,6 +1779,8 @@ class LFADS(object):
       out_dist_params = np.zeros([E_to_process, T, D])
     elif hps.output_dist == 'gaussian':
       out_dist_params = np.zeros([E_to_process, T, D+D])
+    elif hps.output_dist == 'calcium':
+      out_dist_params = np.zeros([E_to_process, T, D])
     else:
       assert False, "NIY"
 

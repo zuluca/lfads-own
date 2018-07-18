@@ -142,7 +142,7 @@ def plot_lfads_timeseries(data_bxtxn, model_vals, ext_input_bxtxi=None,
     params_nxt = np.mean(model_vals['output_dist_params'], axis=0).T
   if output_dist == 'poisson':
     means_nxt = params_nxt
-  elif output_dist == 'calciium':
+  elif output_dist == 'calcium':
     means_nxt = params_nxt
   elif output_dist == 'gaussian': # (means+vars) x time
     means_nxt = np.vsplit(params_nxt,2)[0] # get means

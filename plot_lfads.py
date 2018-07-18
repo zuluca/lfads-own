@@ -85,6 +85,10 @@ def plot_lfads_timeseries(data_bxtxn, model_vals, ext_input_bxtxi=None,
     rates = means = conversion_factor * model_vals['output_dist_params']
     plot_time_series(rates, bidx, n_to_plot=n_to_plot, scale=scale,
                      title=col_title + " rates (LFADS - red, Truth - black)")
+  elif output_dist == 'calcium':
+    rates = means = conversion_factor * model_vals['output_dist_params']
+    plot_time_series(rates, bidx, n_to_plot=n_to_plot, scale=scale,
+                     title=col_title + " rates (LFADS - red, Truth - black)")
   elif output_dist == 'gaussian':
     means_vars = model_vals['output_dist_params']
     means, vars = np.split(means_vars,2, axis=2) # bxtxn
@@ -137,6 +141,8 @@ def plot_lfads_timeseries(data_bxtxn, model_vals, ext_input_bxtxi=None,
     data_nxt = np.mean(data_bxtxn, axis=0).T
     params_nxt = np.mean(model_vals['output_dist_params'], axis=0).T
   if output_dist == 'poisson':
+    means_nxt = params_nxt
+  elif output_dist == 'calciium':
     means_nxt = params_nxt
   elif output_dist == 'gaussian': # (means+vars) x time
     means_nxt = np.vsplit(params_nxt,2)[0] # get means

@@ -837,7 +837,7 @@ class LFADS(object):
           log_rates_t.set_shape([None, None])
           rates[t] = dist_params[t] = tf.exp(log_rates_t) # rates feed back
           rates[t].set_shape([None, hps.dataset_dims[hps.dataset_names[0]]])
-          loglikelihood_t = (data_t_bxd-log_rates_t)**2
+          loglikelihood_t = np.power(data_t_bxd-log_rates_t,2)
 
         else:
           assert False, "NIY"

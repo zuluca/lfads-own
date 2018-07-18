@@ -842,7 +842,7 @@ class LFADS(object):
         else:
           assert False, "NIY"
 
-        log_p_xgz_b += tf.reduce_sum(loglikelihood_t, [1])
+        log_p_xgz_b += -tf.reduce_sum(loglikelihood_t, [1])
 
     # Correlation of inferred inputs cost.
     self.corr_cost = tf.constant(0.0)

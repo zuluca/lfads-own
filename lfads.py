@@ -837,12 +837,13 @@ class LFADS(object):
           log_rates_t.set_shape([None, None])
           rates[t] = dist_params[t] = tf.exp(log_rates_t) # rates feed back
           rates[t].set_shape([None, hps.dataset_dims[hps.dataset_names[0]]])
-          loglikelihood_t = np.power(data_t_bxd-log_rates_t,2)
+          loglikelihood_t = Poisson(log_rates_t).logp(data_t_bxd)
+          # loglikelihood_t = np.power(data_t_bxd-log_rates_t,2)
 
         else:
           assert False, "NIY"
 
-        log_p_xgz_b += -tf.reduce_sum(loglikelihood_t, [1])
+        log_p_xgz_b += tf.reduce_sum(loglikelihood_t, [1])
 
     # Correlation of inferred inputs cost.
     self.corr_cost = tf.constant(0.0)

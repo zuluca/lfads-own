@@ -17,7 +17,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from lfads import LFADS
+from lfads_org import LFADS
 import numpy as np
 import os
 import tensorflow as tf
@@ -318,7 +318,7 @@ flags.DEFINE_boolean("do_train_io_only", DO_TRAIN_IO_ONLY,
 
 # This flag is used for an experiment where one wants to know if the dynamics
 # learned by the generator generalize across conditions. In that case, you might
-# train up a model on one set of data, and then only further train the encoder on 
+# train up a model on one set of data, and then only further train the encoder on
 # another set of data (the conditions to be tested) so that the model is forced
 # to use the same dynamics to describe that data.
 # If you don't care about that particular experiment, this flag should always be

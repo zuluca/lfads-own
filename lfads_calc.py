@@ -840,7 +840,7 @@ class LFADS(object):
           # loglikelihood_t = Poisson(log_rates_t).logp(data_t_bxd)
           # loglikelihood_t = np.power(data_t_bxd-log_rates_t,2)
           # log_poiss_n_t = n*log_rates_t - tf.exp(log_rates_t) - tf.lgamma(k + 1)
-          if t = 0:
+          if t == 0:
               print rates[t].shape
               data_t_prev_bxd = 0.
 

@@ -303,13 +303,19 @@ class LFADS(object):
     if hps.output_dist == 'poisson':
       # Enforce correct dtype
       assert np.issubdtype(
-          datasets[hps.dataset_names[0]]['train_data'].dtype, float), \
+          datasets[hps.dataset_names[0]]['train_data'].dtype, int32), \
           "Data dtype must be int for poisson output distribution"
-      data_dtype = tf.float32
+      data_dtype = tf.int32
     elif hps.output_dist == 'gaussian':
       assert np.issubdtype(
           datasets[hps.dataset_names[0]]['train_data'].dtype, float), \
           "Data dtype must be float for gaussian output dsitribution"
+      data_dtype = tf.float32
+    if hps.output_dist == 'calcium':
+      # Enforce correct dtype
+      assert np.issubdtype(
+          datasets[hps.dataset_names[0]]['train_data'].dtype, float), \
+          "Data dtype must be int for poisson output distribution"
       data_dtype = tf.float32
     else:
       assert False, "NIY"
@@ -1315,7 +1321,8 @@ class LFADS(object):
       data_extxd = data_dict[kind_data]
       if hps.output_dist == 'poisson' and hps.temporal_spike_jitter_width > 0:
         data_extxd = self.shuffle_spikes_in_time(data_extxd)
-
+      if hps.output_dist == 'calcium' and hps.temporal_spike_jitter_width > 0:
+        data_extxd = self.shuffle_spikes_in_time(data_extxd)
       ext_input_extxi = data_dict[kind_ext_input]
       data_bxtxd, ext_input_bxtxi = self.get_batch(data_extxd, ext_input_extxi,
                                                    example_idxs=example_idxs)
@@ -1772,6 +1779,8 @@ class LFADS(object):
       out_dist_params = np.zeros([E_to_process, T, D])
     elif hps.output_dist == 'gaussian':
       out_dist_params = np.zeros([E_to_process, T, D+D])
+    if hps.output_dist == 'calcium':
+      out_dist_params = np.zeros([E_to_process, T, D])
     else:
       assert False, "NIY"
 
